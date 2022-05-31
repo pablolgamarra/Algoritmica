@@ -22,10 +22,9 @@ void cargarLista(Nodo *&, Nodo *&, int, int, double);
 bool ciudadYHoraRepetida(Nodo *, int, int);
 void mostrarLista(Nodo *);
 int mostrarMenu(void);
-void registrarTemperatura(int &, int &, double &, Nodo *&, Nodo *&);
+void registrarTemperatura(int &ciudad, int &hora, double &temperatura, Nodo *&primero, Nodo *&ultimo);
 void consultaTemperaturasHora(Nodo *, char);
-void consultaTodosDatos(Nodo *);
-void consultaPorCiudad(Nodo *, int);
+void consultaTodosDatos(Nodo *primero);
 
 //Estructura de Nombre de las Ciudades Cargadas
 string ciudades[4] = {"Ciudad del Este", "Hernandarias", "Pdte. Franco", "Minga Guazú"};
@@ -55,9 +54,6 @@ main(){
 				break;
 			case 4:
 				cout<<"Consulta de Temperaturas Registradas por Ciudad\n";
-				cout<<"Seleccione la Ciudad cuyas temperaturas desea imprimir.\n";
-				ciudad = cargaCiudad();
-				consultaPorCiudad(primero, ciudad);
 				break;
 			case 5:
 				cout<<"Imprimir la Ciudad que Registró Mayor Temperatura en el Día\n";
@@ -286,29 +282,6 @@ void consultaTemperaturasHora(Nodo *primero, char op){
 		default:
 			cout<<"La opcion de Impresion No Está Disponible.\n";
 			break;
-	}
-	system("pause");
-}
-
-void consultaPorCiudad(Nodo *primero, int ciudad){
-	Nodo *actual = new Nodo();
-	actual = primero;
-	int encontrado = 0;
-	if(actual != NULL){
-		while(actual != NULL){
-			if(actual->ciudad == ciudad){
-				cout<<"Ciudad: "<<ciudades[(actual->ciudad)-1]<<"\n";
-				cout<<"\tHora: "<<actual->hora<<"\n";
-				cout<<"\tTemperatura Registrada: "<<actual->temperatura<<"\n";
-				actual = actual->siguiente;
-				encontrado++;
-			}
-		}
-		if(encontrado == 0){
-			cout<<"La ciudad seleccionada no tiene ninguna temperatura registrada.\n";
-		}
-	}else{
-		cout<<"La lista no está cargada con ningún elemento.\n";
 	}
 	system("pause");
 }
