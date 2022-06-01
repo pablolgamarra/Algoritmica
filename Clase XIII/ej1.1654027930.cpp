@@ -1,4 +1,4 @@
-//@Towel15 - GITHUB
+//@Towel15
 
 #include <iostream>
 #include <windows.h>
@@ -23,7 +23,7 @@ struct Nodo{
 
 //Prototipos de Función
 bool validarRepetidos(Nodo *, int);
-int cargaNumero(Nodo *, char);
+int cargaNumero(Nodo *);
 int opcionImpresion(void);
 void cargarLista(Nodo *&, Nodo *&, int);
 void mostrarLista(Nodo *, int);
@@ -37,9 +37,8 @@ main(){
 	int opImp;
 	do{
 		setlocale(LC_ALL, "spanish");
-		system("cls");
 		cout<<"Programa de Manejo de Listas Doblemente Enlazadas.\n";
-		cargarLista(primero, ultimo, cargaNumero(primero, 'v'));
+		cargarLista(primero, ultimo, cargaNumero(primero));
 		cout<<"¿Desea seguir ingresando numeros a la lista?\n (S/N):";
 		cin>>op;
 		if(op == 'n' || op == 'N'){
@@ -48,8 +47,10 @@ main(){
 	}while(op == 's' || op == 'S');
 	cout<<"Ingrese el numero que desea que se busque en la lista.\n";
 	bool errorEnBusqueda[2] = {false};
-	int buscado = cargaNumero(primero, 'n');
+	int buscado = cargaNumero(primero);
 	int posicionesBusqueda[2] = {buscarNodo(primero, buscado, 1, errorEnBusqueda[0]), buscarNodo(ultimo, buscado, 2, errorEnBusqueda[1])};
+//	cout<<errorEnBusqueda[0]<<endl;
+//	cout<<errorEnBusqueda[1]<<endl;
 	if(errorEnBusqueda[0] || errorEnBusqueda[1]){
 		cout<<"El numero "<<buscado<<" no se ha encontrado en la lista.\n";
 	}
@@ -80,26 +81,21 @@ bool validarRepetidos(Nodo *iniciador, int numero){
 		}else{
 			return false;
 		}
+	}else{
+		cout<<"La lista está vacía.\n";
+		return false;
 	}
 }
 
-int cargaNumero(Nodo *primero, char op){
+int cargaNumero(Nodo *primero){
 	int n;
-	switch(op){
-		case 'v':
-				cout<<"Ingrese un número: ";
-				cin>>n;
-				while(validarRepetidos(primero, n)){
-					cout<<"Ingrese un número: ";
-					cin>>n;
-				}
-				return n;
-		break;
-		case 'n':
-			cout<<"Ingrese un número: ";
-			cin>>n;
-			return n;	
+	cout<<"Ingrese un número: ";
+	cin>>n;
+	while(validarRepetidos(primero, n)){
+		cout<<"Ingrese un número: ";
+		cin>>n;
 	}
+	return n;
 }
 
 int opcionImpresion(void){
@@ -212,7 +208,7 @@ void modificarNodo(Nodo *&primero, int modificable){
 		while(actual != NULL && !encontrado){
 			if(actual->dato == modificable){
 				encontrado = true;
-				actual->dato = cargaNumero(primero, 'v');
+				actual->dato = cargaNumero(primero);
 			}else{
 				actual = actual->siguiente;	
 			}		

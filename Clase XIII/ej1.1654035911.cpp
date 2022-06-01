@@ -1,4 +1,4 @@
-//@Towel15 - GITHUB
+//@Towel15
 
 #include <iostream>
 #include <windows.h>
