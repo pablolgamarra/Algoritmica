@@ -27,11 +27,12 @@ string errores[3] = {
 };
 
 //Prototipos de Funciones
-int cargaCedula();
+bool errorCarga(void);
+int cargaCedula(void);
 string cargaNombreApellido(char);
-int cargaCurso();
-int cargaMateria();
-int cargaCalificacion();
+int cargaCurso(void);
+int cargaMateria(void);
+int cargaCalificacion(void);
 void cargarLista(Nodo *&, Nodo *&, int, string, string, int, int, int);
 void modificarNodo(Nodo *&, Nodo *&, int, string, string, int, int, int);
 void eliminarNodo(Nodo *&, Nodo *&);
@@ -83,29 +84,23 @@ main(){
 
 //Declaración de Funciones
 
+bool errorCarga(){
+	if(cin.fail()){
+		cin.clear();
+		fflush(stdin);
+		return true;
+	}else{
+		return false;
+	}
+}
+
 int cargaCedula(){
 	int n;
-	bool error = false;
 	do{
-		cout<<"Ingrese número de cédula del alumno: ";
+		cout<<"Ingrese número de cédula: ";
 		cin>>n;
-		if(cin.fail()){
-			cout<<errores[2]<<"\n";
-			cin.clear();
-			cin.ignore();
-			error = true;
-		}
-		while(n < 0){
-			cout<<errores[3]<<"\n";
-			cout<<"Ingrese número de cédula del alumno: ";
-			cin>>n;
-			if(cin.fail()){
-				cout<<errores[2]<<"\n";
-				cin.clear();
-				cin.ignore();
-			}			
-		}
-	}while(error);
+	}while(errorCarga() || n <= 0);
+	cout<<"Se ha registrado correctamente el número de cédula.\n";
 	return n;
 }
 
