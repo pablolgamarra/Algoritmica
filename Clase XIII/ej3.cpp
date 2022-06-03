@@ -1,6 +1,7 @@
 //@Towel15 - GITHUB
 
 #include <iostream>
+#include <conio.h>
 #include <windows.h>
 
 using namespace std;
@@ -28,6 +29,7 @@ string errores[3] = {
 
 //Prototipos de Funciones
 bool errorCarga(void);
+bool tieneNum(string);
 int cargaCedula(void);
 string cargaNombreApellido(char);
 int cargaCurso(void);
@@ -94,6 +96,15 @@ bool errorCarga(){
 	}
 }
 
+bool tieneNum(string cadena){
+	for(char caracter : cadena){
+		if(isDigit(caracter) != 0){
+			return true;
+		}
+	}
+	return false;
+}
+
 int cargaCedula(){
 	int n;
 	do{
@@ -104,7 +115,19 @@ int cargaCedula(){
 	return n;
 }
 
-
+string cargaNombreApellido(char op){
+	switch(op){
+		case 'n':
+			do{
+				cout<<"Ingrese nombre: ";
+				cin.getline();				
+			}
+			cout<<"Ingrese nombre: ";
+			cin.getline();
+		case 'a':
+			
+	}
+}
 
 void cargarLista(Nodo *&primero, Nodo *&ultimo, int cedula, string nombre, string apellido, int curso, int materia, int calificacion){
 	Nodo *nuevoNodo = new Nodo();
@@ -118,7 +141,7 @@ void cargarLista(Nodo *&primero, Nodo *&ultimo, int cedula, string nombre, strin
 		nuevoNodo->anterior = NULL;
 		nuevoNodo->siguiente = NULL;
 		primero = nuevoNodo;
-		ultimo = nuevoNodo;
+		ultimo = nuevoNodo;          
 	}else{
 		ultimo->siguiente = nuevoNodo;
 		nuevoNodo->anterior = ultimo;
