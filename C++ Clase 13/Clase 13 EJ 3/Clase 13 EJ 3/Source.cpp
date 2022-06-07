@@ -5,6 +5,7 @@
 #include <ctype.h>
 #include <windows.h>
 #include <string>
+#include <conio.h>
 
 using namespace std;
 
@@ -32,6 +33,7 @@ string errores[6] = {
 };
 
 //Prototipos de Funciones
+void gotoxy(int, int);
 bool errorCarga(void);
 bool tieneNum(string);
 int cargaCedula(void);
@@ -43,10 +45,14 @@ void cargaDatos(Nodo*&, Nodo*&);
 void modificarDatos(Nodo *&, Nodo *&);
 int datoAModificar(void);
 void cargaLista(Nodo*&, Nodo*&, int, string, string, int, int, int);
-bool buscarNodo(Nodo*&, Nodo*&, int );
+bool buscarNodo(Nodo*, int );
 void modificarNodo(Nodo*&, Nodo*&, int, int);
 void eliminarNodo(Nodo*&, Nodo*&);
+void imprimirLista(Nodo*, char);
+void imprimirNodo(Nodo* );
+void imprimirBuscar(Nodo*, char, int);
 int mostrarMenu(void);
+void buscarAlumno(Nodo *, int);
 
 //Método Main - Principal
 int main() {
@@ -65,12 +71,17 @@ int main() {
 			modificarDatos(primero, ultimo);
 			break;
 		case 3:
+			imprimirLista(primero, 't');
 			break;
 		case 4:
+			imprimirLista(primero, 'c');
 			break;
 		case 5:
+			imprimirLista(primero, 'm');
 			break;
 		case 6:
+			cout << "Ingrese el numero de cédula del alumno que desea buscar.\n";
+			buscarAlumno(primero, cargaCedula());
 			break;
 		case 7:
 			break;
@@ -98,6 +109,109 @@ int main() {
 }
 
 //Declaración de Funciones
+
+//Funciones que llaman a otras
+
+void cargaDatos(Nodo*& primero, Nodo*& ultimo) {
+	system("cls");
+	cout << "Creacion de un Registro.\n";
+	int cedula = cargaCedula();
+	string nombre = cargaNombreApellido('n');
+	string apellido = cargaNombreApellido('a');
+	int curso = cargaCurso();
+	int materia = cargaMateria();
+	int calificacion = cargaCalificacion();
+	cargaLista(primero, ultimo, cedula, nombre, apellido, curso, materia, calificacion);
+	cout << "Se ha creado el registro correctamente.\n";
+	Sleep(1000);
+}
+
+void modificarDatos(Nodo*& primero, Nodo*& ultimo) {
+	system("cls");
+	cout << "Modificación de un Registro.\n";
+	cout << "Cargue el numero de cédula del alumno cuyo registro desea modificar.\n";
+	int cedula = cargaCedula();
+	if (buscarNodo(primero, cedula)) {
+		modificarNodo(primero, ultimo, cedula, datoAModificar());
+	}
+	Sleep(1000);
+}
+
+void buscarImprimir(Nodo* iniciador, char opcion, int parametroBusqueda) {
+	/*
+	Esta función se encarga de buscar los alumnos que se precisen, dependiendo del parámetro de búsqueda que se
+	le pasa
+	*/
+	Nodo* actual = new Nodo();
+	actual = iniciador;
+	int encontrado = 0;
+	switch (opcion) {
+	case 'c':
+		if (actual != NULL) {
+			while (actual != NULL) {
+				if (actual->curso == parametroBusqueda) {
+					cout << "Cedula: " << actual->cedula << "\n";
+					cout << "Nombre: " << actual->cedula << "\n";
+					cout << "Apellido: " << actual->cedula << "\n";
+					cout << "Curso: " << actual->cedula << "\n";
+					cout << "Materia: " << actual->cedula << "\n";
+					cout << "Calificación: " << actual->cedula << "\n";
+					encontrado++;
+				}
+				actual = actual->siguiente;
+			}
+			if (encontrado == 0) {
+				cout << "No se encontró ningún registro del curso deseado. Por favor, vuelva a  intentar.\n";
+			}
+		}
+		break;
+	case 'm':
+		if (actual != NULL) {
+			while (actual != NULL) {
+				if (actual->materia == parametroBusqueda) {
+					cout << "Cedula: " << actual->cedula << "\n";
+					cout << "Nombre: " << actual->cedula << "\n";
+					cout << "Apellido: " << actual->cedula << "\n";
+					cout << "Curso: " << actual->cedula << "\n";
+					cout << "Materia: " << actual->cedula << "\n";
+					cout << "Calificación: " << actual->cedula << "\n";
+					encontrado++;
+				}
+				actual = actual->siguiente;
+			}
+			if (encontrado == 0) {
+				cout << "No se encontró ningún registro del curso deseado. Por favor, vuelva a  intentar.\n";
+			}
+		}
+		break;
+	default:
+		cout << errores[1];
+	}
+}
+
+void buscarAlumno(Nodo* iniciador, int cedula) {
+	if (buscarNodo(iniciador, cedula)) {
+		Nodo* actual = new Nodo();
+		actual = iniciador;
+		while (actual != NULL) {
+			if (actual->cedula == cedula) {
+				cout << "Registros del Alumno " << actual->nombre << ", " << actual->apellido << "\n";
+				imprimirNodo(actual);
+			}
+			actual = actual->siguiente;
+		}
+	}
+}
+
+
+void gotoxy(int x, int y) {
+	HANDLE hcon;
+	hcon = GetStdHandle(STD_OUTPUT_HANDLE);
+	COORD cursor;
+	cursor.X = x;
+	cursor.Y = y;
+	SetConsoleCursorPosition(hcon, cursor);
+}
 
 bool errorCarga(void) {
 	if (cin.fail()) {
@@ -193,19 +307,7 @@ int cargaCalificacion(void) {
 	return calificacion;
 }
 
-void cargaDatos(Nodo*& primero, Nodo*& ultimo) {
-	system("cls");
-	cout << "Creacion de un Registro.\n";
-	int cedula = cargaCedula();
-	string nombre = cargaNombreApellido('n');
-	string apellido = cargaNombreApellido('a');
-	int curso = cargaCurso();
-	int materia = cargaMateria();
-	int calificacion = cargaCalificacion();
-	cargaLista(primero, ultimo, cedula, nombre, apellido, curso, materia, calificacion);
-	cout << "Se ha creado el registro correctamente.\n";
-	Sleep(1000);
-}
+
 
 int datoAModificar(void) {
 	int op;
@@ -231,16 +333,7 @@ int datoAModificar(void) {
 	return op;
 }
 
-void modificarDatos(Nodo*& primero, Nodo*& ultimo) {
-	system("cls");
-	cout << "Modificación de un Registro.\n";
-	cout << "Cargue el numero de cédula del alumno cuyo registro desea modificar.\n";
-	int cedula = cargaCedula();
-	if (buscarNodo(primero, ultimo, cedula)) {
-		modificarNodo(primero, ultimo, cedula, datoAModificar());
-	}
-	Sleep(1000);
-}
+
 
 void cargaLista(Nodo*& primero, Nodo*& ultimo, int cedula, string nombre, string apellido, int curso, int materia, int calificacion) {
 	Nodo* nuevoNodo = new Nodo();
@@ -264,7 +357,7 @@ void cargaLista(Nodo*& primero, Nodo*& ultimo, int cedula, string nombre, string
 	}
 }
 
-bool buscarNodo(Nodo*& primero, Nodo*& ultimo, int cedula) {
+bool buscarNodo(Nodo* primero, int cedula) {
 	Nodo* actual = new Nodo();
 	actual = primero;
 	bool encontrado = false;
@@ -379,11 +472,61 @@ void eliminarNodo(Nodo*& primero, Nodo*& ultimo, int cedula) {
 	}
 }
 
-void imprimirLista(Nodo* iniciador) {
+void imprimirNodo(Nodo* actual) {
+	if (actual != NULL) {
+		cout << "Cedula: "<<actual->cedula<<"\n";
+		cout << "Nombre: " << actual->nombre<<"\n";
+		cout << "Apellido: " << actual->apellido << "\n";
+		cout << "Curso: " << actual->curso << "\n";
+		cout << "Materia: " << actual->materia << "\n";
+		cout << "Calificacion: " << actual->calificacion << "\n";
+	}
+}
+
+void imprimirBuscar(Nodo*, char, int)
+{
+	cout << "Imprimir Buscar";
+}
+
+
+
+void imprimirLista(Nodo* iniciador, char opcion) {
+	/*
+	Esta funcioón es la que llama a las otras dependiendo de la necesidad de impresión de datos que se tenga,
+	es una llamadora de funciones.
+	*/
 	Nodo* actual = new Nodo();
 	actual = iniciador;
-
+	if (actual != NULL) {
+		switch (opcion) {
+		case 't':
+			while (actual != NULL) {
+				cout << "Cedula: " << actual->cedula << "\n";
+				cout << "Nombre: " << actual->cedula << "\n";
+				cout << "Apellido: " << actual->cedula << "\n";
+				cout << "Curso: " << actual->cedula << "\n";
+				cout << "Materia: " << actual->cedula << "\n";
+				cout << "Calificación: " << actual->cedula << "\n";
+				actual = actual->siguiente;
+			}
+			break;
+		case 'c':
+			cout << "Imprimir los alumnos de un curso.\nIngrese el curso que desea buscar.\n";
+			imprimirBuscar(iniciador, 'c', cargaCurso());
+			break;
+		case 'm':
+			cout << "Imprimir los alumnos de una materia.\nIngrese la materia que desea buscar.\n";
+			imprimirBuscar(iniciador, 'm', cargaMateria());
+			break;
+		}
+	}
+	else {
+		cout << errores[0] << "\n";
+	}
+	system("pause");
 }
+
+
 
 int mostrarMenu(void) {
 	int op;
