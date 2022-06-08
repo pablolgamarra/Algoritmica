@@ -15,14 +15,14 @@ struct Nodo {
 	string nombre = "";
 	string apellido = "";
 	int curso = 0;
-	int materia = 0;
+	int *materia = new int();
 	int calificacion = 0;
 	Nodo* siguiente = NULL;
 	Nodo* anterior = NULL;
 };
 
 //Estructuras Invariables
-string materias[5] = { "Algorítmica", "Matemática", "Contabilidad", "Administración", "Sistemas Operativos" };
+//string materias[5] = { "Algorítmica", "Matemática", "Contabilidad", "Administración", "Sistemas Operativos" };
 string errores[6] = {
 	"Error. La Lista no está cargada con ningún registro.\n Cargue datos a la lista y vuelva a intentarlo",
 	"Algo ha salido mal, opción de menú no valida.\n",
@@ -35,22 +35,29 @@ string errores[6] = {
 //Prototipos de Funciones
 void gotoxy(int, int);
 bool errorCarga(void);
-bool tieneNum(string);
+bool tieneNumero(string);
+
+void cargarMaterias(string*, int);
+
 int cargaCedula(void);
 string cargaNombreApellido(char);
 int cargaCurso(void);
-int cargaMateria(void);
+int cargaMateria(string*, int);
 int cargaCalificacion(void);
-void cargaDatos(Nodo*&, Nodo*&);
-void modificarDatos(Nodo *&, Nodo *&);
+
+void crearRegistros(Nodo*&, Nodo*&, int, string*);
+void modificarRegistros(Nodo *&, Nodo *&, string*, int);
 int datoAModificar(void);
+
 void cargaLista(Nodo*&, Nodo*&, int, string, string, int, int, int);
-bool buscarNodo(Nodo*, int );
-void modificarNodo(Nodo*&, Nodo*&, int, int);
-void eliminarNodo(Nodo*&, Nodo*&);
 void imprimirLista(Nodo*, char);
+
+bool buscarNodo(Nodo*, int );
+void modificarNodo(Nodo*&, Nodo*&, int, int, string*, int);
+void eliminarNodo(Nodo*&, Nodo*&);
 void imprimirNodo(Nodo* );
-void imprimirBuscar(Nodo*, char, int);
+
+
 int mostrarMenu(void);
 void buscarAlumno(Nodo *, int);
 
@@ -61,14 +68,22 @@ int main() {
 	Nodo* primero = NULL, * ultimo = NULL;
 
 	bool salir = false;
+
+	int cantMaterias;
+	cout << "Carga de Datos - Año Lectivo 2022.\n";
+	cout << "Ingrese la cantidad de Materias: ";
+	cin >> cantMaterias;
+	string* materias = new string [cantMaterias];
+	cargarMaterias(materias, cantMaterias);
+
 	do {
 		system("cls");
 		switch (mostrarMenu()) {
 		case 1:
-			cargaDatos(primero, ultimo);
+			crearRegistros(primero, ultimo, cantMaterias, materias);
 			break;
 		case 2:
-			modificarDatos(primero, ultimo);
+			modificarRegistros(primero, ultimo, materias, cantMaterias);
 			break;
 		case 3:
 			imprimirLista(primero, 't');
@@ -108,31 +123,66 @@ int main() {
 	return 0;
 }
 
+
 //Declaración de Funciones
+void gotoxy(int x, int y) {
+	HANDLE hcon;
+	hcon = GetStdHandle(STD_OUTPUT_HANDLE);
+	COORD cursor;
+	cursor.X = x;
+	cursor.Y = y;
+	SetConsoleCursorPosition(hcon, cursor);
+}
 
-//Funciones que llaman a otras
+bool errorCarga(void) {
+	if (cin.fail()) {
+		cin.clear();
+		fflush(stdin);
+		return true;
+	}
+	else {
+		return false;
+	}
+}
 
-void cargaDatos(Nodo*& primero, Nodo*& ultimo) {
+bool tieneNumero(string cadena) {
+	for (char caracter : cadena) {
+		if (isdigit(caracter) != 0) {
+			return true;
+		}
+	}
+	return false;
+}
+
+void cargarMaterias(string* materias, int cantMaterias) {
+	cout << "Carga de Datos de las Materias.\n";
+	for (int i = 0; i < cantMaterias; i++) {
+		cout << "Materia " << i + 1 << ".\n";
+		cout << "Nombre de la Materia: "; cin >> *(materias + i);
+	}
+}
+
+void crearRegistros(Nodo*& primero, Nodo*& ultimo, int cantMaterias, string* materias) {
 	system("cls");
 	cout << "Creacion de un Registro.\n";
 	int cedula = cargaCedula();
 	string nombre = cargaNombreApellido('n');
 	string apellido = cargaNombreApellido('a');
 	int curso = cargaCurso();
-	int materia = cargaMateria();
+	int materia = cargaMateria(materias, cantMaterias);
 	int calificacion = cargaCalificacion();
 	cargaLista(primero, ultimo, cedula, nombre, apellido, curso, materia, calificacion);
 	cout << "Se ha creado el registro correctamente.\n";
 	Sleep(1000);
 }
 
-void modificarDatos(Nodo*& primero, Nodo*& ultimo) {
+void modificarRegistros(Nodo*& primero, Nodo*& ultimo, string* materias, int cantMaterias) {
 	system("cls");
 	cout << "Modificación de un Registro.\n";
 	cout << "Cargue el numero de cédula del alumno cuyo registro desea modificar.\n";
 	int cedula = cargaCedula();
 	if (buscarNodo(primero, cedula)) {
-		modificarNodo(primero, ultimo, cedula, datoAModificar());
+		modificarNodo(primero, ultimo, cedula, datoAModificar(), materias, cantMaterias);
 	}
 	Sleep(1000);
 }
@@ -168,7 +218,7 @@ void buscarImprimir(Nodo* iniciador, char opcion, int parametroBusqueda) {
 	case 'm':
 		if (actual != NULL) {
 			while (actual != NULL) {
-				if (actual->materia == parametroBusqueda) {
+				if (*(actual->materia) == parametroBusqueda) {
 					cout << "Cedula: " << actual->cedula << "\n";
 					cout << "Nombre: " << actual->cedula << "\n";
 					cout << "Apellido: " << actual->cedula << "\n";
@@ -204,41 +254,24 @@ void buscarAlumno(Nodo* iniciador, int cedula) {
 }
 
 
-void gotoxy(int x, int y) {
-	HANDLE hcon;
-	hcon = GetStdHandle(STD_OUTPUT_HANDLE);
-	COORD cursor;
-	cursor.X = x;
-	cursor.Y = y;
-	SetConsoleCursorPosition(hcon, cursor);
-}
 
-bool errorCarga(void) {
-	if (cin.fail()) {
-		cin.clear();
-		fflush(stdin);
-		return true;
-	}
-	else {
-		return false;
-	}
-}
 
-bool tieneNum(string cadena) {
-	for (char caracter : cadena) {
-		if (isdigit(caracter) != 0) {
-			return true;
-		}
-	}
-	return false;
-}
+
 
 int cargaCedula(void) {
 	int cedula;
 	do {
 		cout << "Ingrese número de cédula: ";
 		cin >> cedula;
+		while (cedula <= 0) {
+			cin.clear();
+			cin.ignore();
+			cout << "Error en carga\n";
+			cout << "Ingrese número de cédula: ";
+			cin >> cedula;
+		}
 	} while (errorCarga() || cedula <= 0);
+	cout << "Numero de Cédula Cargado Exitosamente!...\n";
 	return cedula;
 }
 
@@ -246,20 +279,45 @@ string cargaNombreApellido(char op) {
 	string nombre, apellido;
 	switch (op) {
 	case 'n':
+		cin.clear();
+		cin.ignore();
 		do {
-			cin.ignore();
 			cout << "Ingrese nombre: ";
 			getline(cin, nombre);
-		} while (errorCarga() || tieneNum(nombre));
+			while(errorCarga()) {
+				cout << "Error en la carga.\nVuelva a intentar.\n";
+				cout << "Ingrese nombre: ";
+				getline(cin, nombre);
+			}
+			while (tieneNumero(nombre)) {
+				cout << "Sólo letras!.\nVuelva a intentar.\n";
+				cout << "Ingrese nombre: ";
+				getline(cin, nombre);
+			}
+		} while (errorCarga() || tieneNumero(nombre));
+		cout << "Nombre Cargado Exitosamente!...\n";
 		return nombre;
 		break;
 	case 'a':
+		fflush(stdin);
+		cin.clear();
 		do {
 			cout << "Ingrese apellido: ";
-			getline(cin, nombre);
-		} while (errorCarga() || tieneNum(nombre));
-		return nombre;
-	break;
+			getline(cin, apellido);
+			while (errorCarga()) {
+				cout << "Error en la carga.\nVuelva a intentar.\n";
+				cout << "Ingrese nombre: ";
+				getline(cin, nombre);
+			}
+			while (tieneNumero(nombre)) {
+				cout << "Sólo letras!.\nVuelva a intentar.\n";
+				cout << "Ingrese nombre: ";
+				getline(cin, nombre);
+			}
+		} while (errorCarga() || tieneNumero(apellido));
+		cout << "Apellido Cargado Exitosamente!...\n";
+		return apellido;
+		break;
 	default:
 		cout << errores[4] << "\n";
 		return nombre;
@@ -268,33 +326,34 @@ string cargaNombreApellido(char op) {
 
 int cargaCurso(void) {
 	int curso;
-	cout << "Seleccione el curso (1 - 5): ";
-	cin >> curso;
-	while (curso < 1 || curso > 5) {
-		cout << errores[4];
+	do {
 		cout << "Seleccione el curso (1 - 5): ";
 		cin >> curso;
-	}
+		while (curso < 1 || curso > 5) {
+			cout << errores[4];
+			cout << "Seleccione el curso (1 - 5): ";
+			cin >> curso;
+		}
+		while (errorCarga()) {
+			cout << "Error en la Carga.\nPor favor, vuelva a intentar.\n";
+			cout << "Seleccione el curso (1 - 5): ";
+			cin >> curso;
+		}
+	} while (errorCarga() || (curso < 1 || curso > 5));
 	return curso;
 }
 
-int cargaMateria(void) {
+int cargaMateria(string *materias, int cantMaterias) {
 	int materia;
 	cout << "Seleccione la materia cuya calificación desea registrar:\n";
-	cout << "1- Algorítmica\n";
-	cout << "2- Matemática\n";
-	cout << "3- Contabilidad\n";
-	cout << "4- Administración\n";
-	cout << "5- Sistemas Operativos\n";
+	for (int i = 0; i < cantMaterias; i++) {
+		cout << i + 1 << " - " << (*(materias + i)) << ".\n";
+	}
 	cin >> materia;
 	while (materia < 1 || materia > 5) {
-		cout << errores[5];
-		cout << "Seleccione la materia cuya calificación desea registrar:\n";
-		cout << "1- Algorítmica\n";
-		cout << "2- Matemática\n";
-		cout << "3- Contabilidad\n";
-		cout << "4- Administración\n";
-		cout << "5- Sistemas Operativos\n";
+		for (int i = 0; i < cantMaterias; i++) {
+			cout << i + 1 << " - " << (*(materias + i)) << ".\n";
+		}
 		cin >> materia;
 	}
 	return materia;
@@ -306,8 +365,6 @@ int cargaCalificacion(void) {
 	cin >> calificacion;
 	return calificacion;
 }
-
-
 
 int datoAModificar(void) {
 	int op;
@@ -333,100 +390,6 @@ int datoAModificar(void) {
 	return op;
 }
 
-
-
-void cargaLista(Nodo*& primero, Nodo*& ultimo, int cedula, string nombre, string apellido, int curso, int materia, int calificacion) {
-	Nodo* nuevoNodo = new Nodo();
-	nuevoNodo->cedula = cedula;
-	nuevoNodo->nombre = nombre;
-	nuevoNodo->apellido = apellido;
-	nuevoNodo->curso = curso;
-	nuevoNodo->materia = materia;
-	nuevoNodo->calificacion = calificacion;
-	if (!primero) {
-		nuevoNodo->anterior = NULL;
-		nuevoNodo->siguiente = NULL;
-		primero = nuevoNodo;
-		ultimo = nuevoNodo;
-	}
-	else {
-		ultimo->siguiente = nuevoNodo;
-		nuevoNodo->anterior = ultimo;
-		nuevoNodo->siguiente = NULL;
-		ultimo = nuevoNodo;
-	}
-}
-
-bool buscarNodo(Nodo* primero, int cedula) {
-	Nodo* actual = new Nodo();
-	actual = primero;
-	bool encontrado = false;
-	if (primero) {
-		while (actual && !encontrado) {
-			if (actual->cedula == cedula) {
-				encontrado = true;
-			}
-			else {
-				actual = actual->siguiente;
-			}
-		}
-		if (encontrado) {
-			cout << "Se ha encontrado el registro.\n";
-		}
-		else {
-			cout << "No se ha encontrado el registro correspondiente a ese número de cédula.\nVuelva a intentar...";
-		}
-	}
-	else {
-		cout << errores[0] << "\n";
-	}
-	return encontrado;
-}
-
-void modificarNodo(Nodo*& primero, Nodo*& ultimo, int cedula, int op) {
-	Nodo* actual = new Nodo();
-	actual = primero;
-	bool modificado = false;
-	if (primero) {
-		while (actual && !modificado) {
-			if (actual->cedula == cedula) {
-				switch (op) {
-				case 1:
-					actual->cedula = cargaCedula();
-					break;
-				case 2:
-					actual->nombre = cargaNombreApellido('n');
-					break;
-				case 3:
-					actual->apellido = cargaNombreApellido('a');
-					break;
-				case 4:
-					actual->curso = cargaCurso();
-					break;
-				case 5:
-					actual->materia = cargaMateria();
-					break;
-				case 6:
-					actual->calificacion = cargaCalificacion();
-					break;
-				}
-				modificado = true;
-			}
-			else {
-				actual = actual->siguiente;
-			}
-		}
-		if (modificado) {
-			cout << "Se ha modificado el registro correctamente.\n";
-		}
-		else {
-			cout << "No se ha encontrado el elemento a modificar.\nVuelva a intentar...";
-		}
-	}
-	else {
-		cout << errores[0] << "\n";
-	}
-}
 
 void eliminarNodo(Nodo*& primero, Nodo*& ultimo, int cedula) {
 	Nodo* actual = new Nodo();
@@ -483,51 +446,6 @@ void imprimirNodo(Nodo* actual) {
 	}
 }
 
-void imprimirBuscar(Nodo*, char, int)
-{
-	cout << "Imprimir Buscar";
-}
-
-
-
-void imprimirLista(Nodo* iniciador, char opcion) {
-	/*
-	Esta funcioón es la que llama a las otras dependiendo de la necesidad de impresión de datos que se tenga,
-	es una llamadora de funciones.
-	*/
-	Nodo* actual = new Nodo();
-	actual = iniciador;
-	if (actual != NULL) {
-		switch (opcion) {
-		case 't':
-			while (actual != NULL) {
-				cout << "Cedula: " << actual->cedula << "\n";
-				cout << "Nombre: " << actual->cedula << "\n";
-				cout << "Apellido: " << actual->cedula << "\n";
-				cout << "Curso: " << actual->cedula << "\n";
-				cout << "Materia: " << actual->cedula << "\n";
-				cout << "Calificación: " << actual->cedula << "\n";
-				actual = actual->siguiente;
-			}
-			break;
-		case 'c':
-			cout << "Imprimir los alumnos de un curso.\nIngrese el curso que desea buscar.\n";
-			imprimirBuscar(iniciador, 'c', cargaCurso());
-			break;
-		case 'm':
-			cout << "Imprimir los alumnos de una materia.\nIngrese la materia que desea buscar.\n";
-			imprimirBuscar(iniciador, 'm', cargaMateria());
-			break;
-		}
-	}
-	else {
-		cout << errores[0] << "\n";
-	}
-	system("pause");
-}
-
-
-
 int mostrarMenu(void) {
 	int op;
 	cout << "Seleccione la opción que desea realizar.\n";
@@ -566,6 +484,126 @@ int mostrarMenu(void) {
 	}
 	return op;
 }
+
+void imprimirLista(Nodo* iniciador, char opcion) {
+	Nodo* actual = new Nodo();
+	actual = iniciador;
+	if (actual != NULL) {
+		switch (opcion) {
+		case 't':
+			while (actual != NULL) {
+				imprimirNodo(actual);
+				actual = actual->siguiente;
+			}
+			break;
+		case 'c':
+			cout << "Imprimir los alumnos de un curso.\nIngrese el curso que desea buscar.\n";
+			break;
+		case 'm':
+			cout << "Imprimir los alumnos de una materia.\nIngrese la materia que desea buscar.\n";
+			break;
+		}
+	}
+	else {
+		cout << errores[0] << "\n";
+	}
+	system("pause");
+}
+
+
+void cargaLista(Nodo*& primero, Nodo*& ultimo, int cedula, string nombre, string apellido, int curso, int materia, int calificacion) {
+	Nodo* nuevoNodo = new Nodo();
+	nuevoNodo->cedula = cedula;
+	nuevoNodo->nombre = nombre;
+	nuevoNodo->apellido = apellido;
+	nuevoNodo->curso = curso;
+	*(nuevoNodo->materia) = materia;
+	nuevoNodo->calificacion = calificacion;
+	if (!primero) {
+		nuevoNodo->anterior = NULL;
+		nuevoNodo->siguiente = NULL;
+		primero = nuevoNodo;
+		ultimo = nuevoNodo;
+	}
+	else {
+		ultimo->siguiente = nuevoNodo;
+		nuevoNodo->anterior = ultimo;
+		nuevoNodo->siguiente = NULL;
+		ultimo = nuevoNodo;
+	}
+}
+
+bool buscarNodo(Nodo* primero, int cedula) {
+	Nodo* actual = new Nodo();
+	actual = primero;
+	bool encontrado = false;
+	if (primero) {
+		while (actual && !encontrado) {
+			if (actual->cedula == cedula) {
+				encontrado = true;
+			}
+			else {
+				actual = actual->siguiente;
+			}
+		}
+		if (encontrado) {
+			cout << "Se ha encontrado el registro.\n";
+		}
+		else {
+			cout << "No se ha encontrado el registro correspondiente a ese número de cédula.\nVuelva a intentar...";
+		}
+	}
+	else {
+		cout << errores[0] << "\n";
+	}
+	return encontrado;
+}
+
+void modificarNodo(Nodo*& primero, Nodo*& ultimo, int cedula, int op, string *materias, int cantMaterias) {
+	Nodo* actual = new Nodo();
+	actual = primero;
+	bool modificado = false;
+	if (primero) {
+		while (actual && !modificado) {
+			if (actual->cedula == cedula) {
+				switch (op) {
+				case 1:
+					actual->cedula = cargaCedula();
+					break;
+				case 2:
+					actual->nombre = cargaNombreApellido('n');
+					break;
+				case 3:
+					actual->apellido = cargaNombreApellido('a');
+					break;
+				case 4:
+					actual->curso = cargaCurso();
+					break;
+				case 5:
+					*(actual->materia) = cargaMateria(materias, cantMaterias);
+					break;
+				case 6:
+					actual->calificacion = cargaCalificacion();
+					break;
+				}
+				modificado = true;
+			}
+			else {
+				actual = actual->siguiente;
+			}
+		}
+		if (modificado) {
+			cout << "Se ha modificado el registro correctamente.\n";
+		}
+		else {
+			cout << "No se ha encontrado el elemento a modificar.\nVuelva a intentar...";
+		}
+	}
+	else {
+		cout << errores[0] << "\n";
+	}
+}
+
 
 /*
 Crear un proceso que permita ingresar las calificaciones de la carrera de ing. En informática para

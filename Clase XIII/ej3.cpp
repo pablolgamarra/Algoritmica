@@ -97,8 +97,8 @@ bool errorCarga(){
 }
 
 bool tieneNum(string cadena){
-	for(char caracter : cadena){
-		if(isDigit(caracter) != 0){
+	for(int i=0; i<=cadena.length(); i++){
+		if(isDigit(cadena[i]) != 0){
 			return true;
 		}
 	}
@@ -120,7 +120,7 @@ string cargaNombreApellido(char op){
 		case 'n':
 			do{
 				cout<<"Ingrese nombre: ";
-				cin.getline();				
+				cin.getline();		
 			}
 			cout<<"Ingrese nombre: ";
 			cin.getline();
