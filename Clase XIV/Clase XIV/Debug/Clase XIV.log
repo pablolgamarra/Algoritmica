@@ -1,2 +1,4 @@
 ﻿  Source.cpp
+P:\Archivos Facultad\Algoritmica\Clase XIV\Clase XIV\Source.cpp(222,45): warning C4390: ';': se encontró una instrucción controlada vacía; ¿es esa la intención?
+P:\Archivos Facultad\Algoritmica\Clase XIV\Clase XIV\Source.cpp(267): warning C4715: 'buscarNombre': no todas las rutas de acceso de control devuelven un valor
   Clase XIV.vcxproj -> P:\Archivos Facultad\Algoritmica\Clase XIV\Clase XIV\Debug\Ejercicio 1.exe
