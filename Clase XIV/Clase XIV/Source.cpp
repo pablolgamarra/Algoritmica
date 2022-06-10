@@ -1,10 +1,10 @@
 //@Towel15 - GITHUB
 
 #include <iostream>
+#include <conio.h>
 #include <cstdlib>
 #include <time.h>
 #include <string.h>
-#include <string>
 #include <windows.h>
 
 using namespace std;
@@ -18,6 +18,13 @@ struct Nodo {
 	Nodo* anterior = NULL;
 };
 
+struct NodoTop {
+	int idJugador = 0;
+	int puntajeTotal = 0;
+	NodoTop* siguiente = NULL;
+	NodoTop* anterior = NULL;
+};
+
 int i = 0, puntajeGanador = 0;
 
 int generarAleatorio(int, int);
@@ -29,50 +36,33 @@ string buscarNombre(Nodo*, int);
 void mostrarLista(Nodo*, int);
 void mostrarRonda(Nodo* , int);
 void mostrarJugador(Nodo*, int);
-void mostrarTop(Nodo*, int, int);
+void cargarTop(NodoTop*&, NodoTop*&, Nodo*);
+void ordenarTop(NodoTop*&);
+void mostrarTop(NodoTop*, Nodo*);
+void juego(Nodo*&, Nodo*&, int&, int&);
 void buscarGanador(Nodo*);
 int mostrarMenu(void);
+void salirOSeguir(bool&, bool&);
+void gotoxy(int, int);
 
 int main(){
 	srand((unsigned)time(NULL));
 	setlocale(LC_ALL, "spanish");
 
-	Nodo* primero = NULL, *ultimo = NULL;
+	Nodo* primero  = NULL, *ultimo = NULL;
+	NodoTop* topPrimero = NULL, * topUltimo = NULL;
 
 	int cantJugadores = 0, cantRondas = 0;
-	bool salir = false;
+	bool salir = false, jugar = true;
 
-	cout << "Juego del Dado\n";
-	cout << "Ingrese la cantidad de rondas que desean jugar: "; cin >> cantRondas;
-	while (cantRondas <= 0 || cantRondas > 50){
-		cout << "El rango de rondas simulables es de 1 a 50.\nVuelva a intentar.\n";
-		cout << "Ingrese la cantidad de rondas que desean jugar: "; cin >> cantRondas;
-	}	
-
-	cout << "Ingrese la cantidad de jugadores: "; cin >> cantJugadores;
-	while (cantJugadores < 2) {
-		cout << "Error. Deben haber al menos 2 jugadores!.\n";
-		cout << "Ingrese la cantidad de jugadores: "; cin >> cantJugadores;
-	}
-	
-	for (int i = 1; i <= cantJugadores; i++) {
-		cargarLista(primero, ultimo, i, cargarNombre(i), 0);
-	}
-
-	for (int i = 1; i <= cantRondas; i++) {
-		system("cls");
-		cout << "Ronda " << i << ".\n";
-		for (int j = 1; j <= cantJugadores; j++) {
-			cout << "Jugador " << j << " lanza los dados...\n";
-			int puntajeRonda = 0;
-			puntajeRonda = lanzarDados();
-			modificarPuntaje(primero, j, puntajeRonda, i);
-		}
-	}
-
-	system("cls");
-	buscarGanador(primero);
 	do {
+		if (jugar) {
+			juego(primero, ultimo, cantRondas, cantJugadores);
+			system("cls");
+			buscarGanador(primero);
+			jugar = false;
+		}
+
 		switch (mostrarMenu()) {
 			case 1:
 				mostrarLista(primero, cantRondas);
@@ -84,24 +74,12 @@ int main(){
 				mostrarJugador(primero, cantRondas);
 				break;
 			case 4:
-				mostrarTop(primero, cantRondas, cantJugadores);
+				cargarTop(topPrimero, topUltimo, primero);
+				ordenarTop(topPrimero);
+				mostrarTop(topPrimero, primero);
 				break;
 			case 5:
-				int opcion = 0;
-				cout << "Seleccione la opción que desea:\n";
-				cout << "1- Salir.\n";
-				cout << "2- Volver a Jugar.\n";
-				cout << "Opción: ";cin >> opcion;
-				while (opcion < 1 || opcion > 2) {
-					cout << "Error. Debe seleccionar una de las opciones disponibles.\n";
-					cout << "Seleccione la opción que desea:\n";
-					cout << "1- Salir.\n";
-					cout << "2- Volver a Jugar.\n";
-					cout << "Opción: ";cin >> opcion;
-				}
-				if (opcion == 1) {
-					salir = true;
-				}
+				salirOSeguir(salir, jugar);
 				break;
 		}
 	} while (!salir);
@@ -152,7 +130,9 @@ void mostrarLista(Nodo* primero, int cantRondas) {
 	actual = primero;
 	if(actual){
 		while (actual) {
-			cout << "Jugador: " << actual->nombre<<"\n";
+			cout << "+----------------------------------------------+\n";
+			cout << "|Jugador: "<< actual->nombre << "|\n";
+			cout << "+----------------------------------------------+\n";
 			for (int i = 0; i < cantRondas; i++) {
 				cout << "Ronda " << i+1 << " Puntaje: " << actual->puntajes[i] << ".\n";
 			}
@@ -211,33 +191,90 @@ void mostrarJugador(Nodo* primero, int cantRondas) {
 	}
 }
 
-void mostrarTop(Nodo* primero, int cantRondas, int cantJugadores) {
-	cout << "Top Puntajes.\n";
-	int i = 0;
-	int topPuntajes[5] {0};
-	bool ordenado = false;
+void cargarTop(NodoTop *&topPrimero, NodoTop *&topUltimo, Nodo* primero) {
 	Nodo* actual = new Nodo();
 	actual = primero;
-	if (actual) {
-		i = 0;
-		do {
-			actual = primero;
-			while (actual) {
-				if (actual->siguiente != NULL) {
-					if (actual->puntajeTotal > actual->siguiente->puntajeTotal) {
-						topPuntajes[i] = actual->siguiente->puntajeTotal;
-						i++;
-					}
 
+	if (actual) {
+		while (actual) {
+			NodoTop* nuevoNodo = new NodoTop();
+			nuevoNodo->idJugador = actual->idJugador;
+			nuevoNodo->puntajeTotal = actual->puntajeTotal;
+			if (topPrimero == NULL) {
+				topPrimero = nuevoNodo;
+				nuevoNodo->anterior = NULL;
+				nuevoNodo->siguiente = NULL;
+				topUltimo = topPrimero;
+			}
+			else {
+				topUltimo->siguiente = nuevoNodo;
+				nuevoNodo->anterior = topUltimo;
+				nuevoNodo->siguiente = NULL;
+				topUltimo = nuevoNodo;
+			}
+			actual = actual->siguiente;
+		}
+	}
+}
+
+void ordenarTop(NodoTop *&topPrimero) {
+	NodoTop* actual = new NodoTop(), * aux = new NodoTop();
+	actual = topPrimero;
+	int desordenados = 0;
+	bool desordenado = true;
+	do {
+		desordenados = 0;
+		actual = topPrimero;
+		if (actual) {
+			while (actual) {
+				if (actual->siguiente) {
+					if (actual->puntajeTotal < actual->siguiente->puntajeTotal) {
+						aux = actual;
+						actual->idJugador = actual->siguiente->idJugador;
+						actual->puntajeTotal = actual->siguiente->puntajeTotal;
+
+						actual->siguiente->idJugador = aux->idJugador;
+						actual->siguiente->puntajeTotal = aux->puntajeTotal;
+					}
+					actual = actual->siguiente;
 				}
-				//cout << "Jugador: " << actual->nombre << "\n";
-				//cout << "El Puntaje Total de " << actual->nombre << " es: " << actual->puntajeTotal << "\n";
-				actual = actual->siguiente;
+				else {
+					actual = actual->siguiente;
+				}
 			}
-			for (int j = 0; j < cantJugadores; j++) {
-				if (topPuntajes[j] > topPuntajes[j + 1]);
+			actual = topPrimero;
+			while (actual) {
+				if (actual->siguiente) {
+					if (actual->puntajeTotal < actual->siguiente->puntajeTotal) {
+						desordenados++;
+						break;
+					}
+					actual = actual->siguiente;
+				}
+				else {
+					actual = actual->siguiente;
+				}
 			}
-		} while(!ordenado);
+			if (desordenados > 0) {
+				desordenado = true;
+			}
+			else {
+				desordenado = false;
+			}
+		}
+	} while (desordenado);
+}
+
+void mostrarTop(NodoTop* topPrimero, Nodo *primero) {
+	NodoTop* actual = new NodoTop();
+	actual = topPrimero;
+
+	if (actual) {
+		while (actual) {
+				cout << "Jugador: " << buscarNombre(primero, actual->idJugador) << "\n";
+				cout << "Puntaje: " << actual->puntajeTotal << "\n";
+			actual = actual->siguiente;
+		}
 	}
 }
 
@@ -282,6 +319,36 @@ string buscarNombre(Nodo* primero, int idJugador) {
 	}
 }
 
+void juego(Nodo*&primero, Nodo*&ultimo, int& cantRondas, int& cantJugadores) {
+	cout << "Juego del Dado\n";
+	cout << "Ingrese la cantidad de rondas que desean jugar: "; cin >> cantRondas;
+	while (cantRondas <= 0 || cantRondas > 50) {
+		cout << "El rango de rondas simulables es de 1 a 50.\nVuelva a intentar.\n";
+		cout << "Ingrese la cantidad de rondas que desean jugar: "; cin >> cantRondas;
+	}
+
+	cout << "Ingrese la cantidad de jugadores: "; cin >> cantJugadores;
+	while (cantJugadores < 2) {
+		cout << "Error. Deben haber al menos 2 jugadores!.\n";
+		cout << "Ingrese la cantidad de jugadores: "; cin >> cantJugadores;
+	}
+
+	for (int i = 1; i <= cantJugadores; i++) {
+		cargarLista(primero, ultimo, i, cargarNombre(i), 0);
+	}
+
+	for (int i = 1; i <= cantRondas; i++) {
+		system("cls");
+		cout << "Ronda " << i << ".\n";
+		for (int j = 1; j <= cantJugadores; j++) {
+			cout << "Jugador " << j << " lanza los dados...\n";
+			int puntajeRonda = 0;
+			puntajeRonda = lanzarDados();
+			modificarPuntaje(primero, j, puntajeRonda, i);
+		}
+	}
+}
+
 void buscarGanador(Nodo* primero) {
 	Nodo* actual = new Nodo();
 	actual = primero;
@@ -321,6 +388,37 @@ int mostrarMenu(void) {
 		cout << "Opción: "; cin >> opcion;
 	}
 	return opcion;
+}
+
+void salirOSeguir(bool&salir, bool&jugar) {
+	int opcion = 0;
+	cout << "Seleccione la opción que desea:\n";
+	cout << "1- Salir.\n";
+	cout << "2- Volver a Jugar.\n";
+	cout << "Opción: "; cin >> opcion;
+	while (opcion < 1 || opcion > 2) {
+		cout << "Error. Debe seleccionar una de las opciones disponibles.\n";
+		cout << "Seleccione la opción que desea:\n";
+		cout << "1- Salir.\n";
+		cout << "2- Volver a Jugar.\n";
+		cout << "Opción: "; cin >> opcion;
+	}
+	if (opcion == 1) {
+		salir = true;
+		jugar = false;
+	}
+	else {
+		jugar = true;
+	}
+}
+
+void gotoxy(int x, int y) {
+	HANDLE hcon;
+	hcon = GetStdHandle(STD_OUTPUT_HANDLE);
+	COORD dwPos;
+	dwPos.X = x;
+	dwPos.Y = y;
+	SetConsoleCursorPosition(hcon, dwPos);
 }
 
 /*
