@@ -67,28 +67,44 @@ int main(){
 			int puntajeRonda = 0;
 			puntajeRonda = lanzarDados();
 			modificarPuntaje(primero, j, puntajeRonda, i);
-			cout << "El jugador " << buscarNombre(primero, j)<< " ha sumado: " << puntajeRonda << " puntos en esta ronda.\n";
 		}
 	}
 
 	system("cls");
 	buscarGanador(primero);
-	switch (mostrarMenu()) {
-		case 1:
-			mostrarLista(primero, cantRondas);
-			break;
-		case 2:
-			mostrarRonda(primero, cantRondas);
-			break;
-		case 3:
-			mostrarJugador(primero, cantRondas);
-			break;
-		case 4:
-			mostrarTop(primero, cantRondas, cantJugadores);
-			break;
-		case 5:
-			break;
-	}
+	do {
+		switch (mostrarMenu()) {
+			case 1:
+				mostrarLista(primero, cantRondas);
+				break;
+			case 2:
+				mostrarRonda(primero, cantRondas);
+				break;
+			case 3:
+				mostrarJugador(primero, cantRondas);
+				break;
+			case 4:
+				mostrarTop(primero, cantRondas, cantJugadores);
+				break;
+			case 5:
+				int opcion = 0;
+				cout << "Seleccione la opción que desea:\n";
+				cout << "1- Salir.\n";
+				cout << "2- Volver a Jugar.\n";
+				cout << "Opción: ";cin >> opcion;
+				while (opcion < 1 || opcion > 2) {
+					cout << "Error. Debe seleccionar una de las opciones disponibles.\n";
+					cout << "Seleccione la opción que desea:\n";
+					cout << "1- Salir.\n";
+					cout << "2- Volver a Jugar.\n";
+					cout << "Opción: ";cin >> opcion;
+				}
+				if (opcion == 1) {
+					salir = true;
+				}
+				break;
+		}
+	} while (!salir);
 
 	system("pause");
 	return 0;
