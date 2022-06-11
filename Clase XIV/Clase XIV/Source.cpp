@@ -66,6 +66,7 @@ int main(){
 		switch (mostrarMenu()) {
 			case 1:
 				mostrarLista(primero, cantRondas);
+				system("pause");
 				break;
 			case 2:
 				mostrarRonda(primero, cantRondas);
@@ -94,7 +95,11 @@ int generarAleatorio(int limiteSuperior, int limiteInferior) {
 
 string cargarNombre(int i) {
 	string nombre;
-	cout << "Ingrese nombre del jugador " << i << ": "; cin >> nombre;
+	cout << "|Nombre del jugador " << i << ": ";
+	gotoxy(47,5+i);
+	cout << "|\n";
+	gotoxy(25, 5+i);
+	cin >> nombre;
 	return nombre;
 }
 
@@ -126,15 +131,22 @@ void cargarLista(Nodo*& primero, Nodo*& ultimo,int id ,string nombre, int puntaj
 }
 
 void mostrarLista(Nodo* primero, int cantRondas) {
+	system("cls");
+	
 	Nodo* actual = new Nodo();
 	actual = primero;
 	if(actual){
 		while (actual) {
 			cout << "+----------------------------------------------+\n";
-			cout << "|Jugador: "<< actual->nombre << "|\n";
+			gotoxy(2, 0);
+			cout << "|   Jugador: " << actual->nombre;
+			gotoxy(2, 49);
+			cout<< "           |\n";
 			cout << "+----------------------------------------------+\n";
 			for (int i = 0; i < cantRondas; i++) {
-				cout << "Ronda " << i+1 << " Puntaje: " << actual->puntajes[i] << ".\n";
+				cout << "+----------------------------------------------+\n";
+				cout << "|Ronda " << i+1 << " Puntaje: " << actual->puntajes[i] << "|\n";
+				cout << "+----------------------------------------------+\n";
 			}
 			cout << "El Puntaje Total de "<<actual->nombre<<" es: " << actual->puntajeTotal<<"\n";
 			actual = actual->siguiente;
@@ -220,49 +232,25 @@ void cargarTop(NodoTop *&topPrimero, NodoTop *&topUltimo, Nodo* primero) {
 void ordenarTop(NodoTop *&topPrimero) {
 	NodoTop* actual = new NodoTop(), * aux = new NodoTop();
 	actual = topPrimero;
-	int desordenados = 0;
-	bool desordenado = true;
-	do {
-		desordenados = 0;
-		actual = topPrimero;
-		if (actual) {
-			while (actual) {
-				if (actual->siguiente) {
-					if (actual->puntajeTotal < actual->siguiente->puntajeTotal) {
-						aux = actual;
-						actual->idJugador = actual->siguiente->idJugador;
-						actual->puntajeTotal = actual->siguiente->puntajeTotal;
+	if (actual) {
+		while (actual) {
+			if (actual->siguiente) {
+				if (actual->puntajeTotal < actual->siguiente->puntajeTotal) {
+					aux = actual;
+					
+					actual->idJugador = actual->siguiente->idJugador;
+					actual->puntajeTotal = actual->siguiente->puntajeTotal;
 
-						actual->siguiente->idJugador = aux->idJugador;
-						actual->siguiente->puntajeTotal = aux->puntajeTotal;
-					}
-					actual = actual->siguiente;
+					actual->siguiente->idJugador = aux->idJugador;
+					actual->siguiente->puntajeTotal = aux->puntajeTotal;
 				}
-				else {
-					actual = actual->siguiente;
-				}
-			}
-			actual = topPrimero;
-			while (actual) {
-				if (actual->siguiente) {
-					if (actual->puntajeTotal < actual->siguiente->puntajeTotal) {
-						desordenados++;
-						break;
-					}
-					actual = actual->siguiente;
-				}
-				else {
-					actual = actual->siguiente;
-				}
-			}
-			if (desordenados > 0) {
-				desordenado = true;
+				actual = actual->siguiente;
 			}
 			else {
-				desordenado = false;
+				actual = actual->siguiente;
 			}
 		}
-	} while (desordenado);
+	}
 }
 
 void mostrarTop(NodoTop* topPrimero, Nodo *primero) {
@@ -320,14 +308,29 @@ string buscarNombre(Nodo* primero, int idJugador) {
 }
 
 void juego(Nodo*&primero, Nodo*&ultimo, int& cantRondas, int& cantJugadores) {
-	cout << "Juego del Dado\n";
-	cout << "Ingrese la cantidad de rondas que desean jugar: "; cin >> cantRondas;
+	system("cls");
+	cout << "+----------------------------------------------+\n";
+	cout << "|";
+	gotoxy(17, 1);
+	cout << "JUEGO DEL DADO";
+	gotoxy(47,1);
+	cout << "|\n";
+	cout << "+----------------------------------------------+\n";
+	cout << "|Cantidad de rondas que desean jugar: "; 
+	gotoxy(47, 3);
+	cout << "|\n";
+	gotoxy(40, 3);
+	cin >> cantRondas;
 	while (cantRondas <= 0 || cantRondas > 50) {
 		cout << "El rango de rondas simulables es de 1 a 50.\nVuelva a intentar.\n";
 		cout << "Ingrese la cantidad de rondas que desean jugar: "; cin >> cantRondas;
 	}
-
-	cout << "Ingrese la cantidad de jugadores: "; cin >> cantJugadores;
+	cout << "+----------------------------------------------+\n";
+	cout << "|Cantidad de jugadores: ";
+	gotoxy(47, 5);
+	cout << "|\n";
+	gotoxy(24, 5);
+	cin >> cantJugadores;
 	while (cantJugadores < 2) {
 		cout << "Error. Deben haber al menos 2 jugadores!.\n";
 		cout << "Ingrese la cantidad de jugadores: "; cin >> cantJugadores;
@@ -339,9 +342,15 @@ void juego(Nodo*&primero, Nodo*&ultimo, int& cantRondas, int& cantJugadores) {
 
 	for (int i = 1; i <= cantRondas; i++) {
 		system("cls");
-		cout << "Ronda " << i << ".\n";
+		cout << "+----------------------------------------------+\n";
+		cout << "|Ronda: " << i;
+		gotoxy(47, 1);
+		cout<< "|\n";
 		for (int j = 1; j <= cantJugadores; j++) {
-			cout << "Jugador " << j << " lanza los dados...\n";
+			cout << "+----------------------------------------------+\n";
+			cout << "|Jugador " << j << " lanza los dados...";
+			gotoxy(47, 3);
+			cout<<"|\n";
 			int puntajeRonda = 0;
 			puntajeRonda = lanzarDados();
 			modificarPuntaje(primero, j, puntajeRonda, i);
@@ -365,12 +374,23 @@ void buscarGanador(Nodo* primero) {
 			actual = actual->siguiente;
 		}
 	}
-	cout << "El ganador es: " << buscarNombre(primero, (i))<<"\n";
-	cout << "Su puntaje es: " << puntajeGanador << "\n";
+	gotoxy(55, 0);
+	cout << "+----------------------------------------------+\n";
+	gotoxy(55, 1);
+	cout << "|El ganador es: " << buscarNombre(primero, (i));
+	gotoxy(102, 1);
+	cout << "|\n";
+	gotoxy(55, 2);
+	cout << "|Su puntaje es: " << puntajeGanador;
+	gotoxy(102, 2);
+	cout << "|\n";
+	gotoxy(55, 3);
+	cout << "+----------------------------------------------+\n";
 }
 
 int mostrarMenu(void) {
 	int opcion;
+	gotoxy(0,0);
 	cout << "Seleccione la opción que desea ejecutar:\n";
 	cout << "1- Ver Puntajes.\n";
 	cout << "2- Consultar Puntajes por Ronda Específica.\n";
@@ -415,10 +435,10 @@ void salirOSeguir(bool&salir, bool&jugar) {
 void gotoxy(int x, int y) {
 	HANDLE hcon;
 	hcon = GetStdHandle(STD_OUTPUT_HANDLE);
-	COORD dwPos;
-	dwPos.X = x;
-	dwPos.Y = y;
-	SetConsoleCursorPosition(hcon, dwPos);
+	COORD posCursor;
+	posCursor.X = x;
+	posCursor.Y = y;
+	SetConsoleCursorPosition(hcon, posCursor);
 }
 
 /*
