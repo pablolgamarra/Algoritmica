@@ -105,9 +105,35 @@ string cargarNombre(int i) {
 
 int lanzarDados(void) {
 	int puntaje = 0;
+	int x = 50;
+	int y = 0;
+
+	for (int i = 1; i <= 3; i++) {
+		if (i != 1) {
+			y = y - 5;
+		}
+		gotoxy(x, y);
+		y++;
+		cout << "+----------+\n";
+		for (int j = 1; j <= 4;j++) {
+			gotoxy(x, y);
+			y++;
+			cout << "|          |\n";
+		}
+		gotoxy(x, y);
+		cout << "+----------+\n";
+		x = x + 14;
+	}
+
+	x = 55;
+	y = 3;
 	for (int i = 0; i < 3; i++) {
 		puntaje = puntaje + generarAleatorio(21, 1);
+		gotoxy(x,y);
+		cout << puntaje;
+		x = x + 14;
 	}
+
 	return puntaje;
 }
 
@@ -138,14 +164,12 @@ void mostrarLista(Nodo* primero, int cantRondas) {
 	if(actual){
 		while (actual) {
 			cout << "+----------------------------------------------+\n";
-			gotoxy(2, 0);
 			cout << "|   Jugador: " << actual->nombre;
-			gotoxy(2, 49);
-			cout<< "           |\n";
+			cout<< "|\n";
 			cout << "+----------------------------------------------+\n";
 			for (int i = 0; i < cantRondas; i++) {
-				cout << "+----------------------------------------------+\n";
-				cout << "|Ronda " << i+1 << " Puntaje: " << actual->puntajes[i] << "|\n";
+				cout << "|Ronda " << i + 1 << " Puntaje: " << actual->puntajes[i];
+				cout << "|\n";
 				cout << "+----------------------------------------------+\n";
 			}
 			cout << "El Puntaje Total de "<<actual->nombre<<" es: " << actual->puntajeTotal<<"\n";
@@ -165,6 +189,12 @@ void mostrarRonda(Nodo* primero, int cantRondas) {
 	Nodo* actual = new Nodo();
 	actual = primero;
 	
+	for (int i = 1; i <= cantRondas; i++) {
+		cout << "+----------------+----------------+----------------+";
+		cout << "|                |                |                |";
+		cout << "+----------------+----------------+----------------";
+	}
+
 	system("cls");
 	if (actual) {
 		cout << "Ronda: " << rondaMostrar<<"\n";
@@ -343,16 +373,31 @@ void juego(Nodo*&primero, Nodo*&ultimo, int& cantRondas, int& cantJugadores) {
 	for (int i = 1; i <= cantRondas; i++) {
 		system("cls");
 		cout << "+----------------------------------------------+\n";
-		cout << "|Ronda: " << i;
-		gotoxy(47, 1);
-		cout<< "|\n";
+		cout << "|                                              |\n";
+		cout << "+----------------------------------------------+\n";
+		gotoxy(1, 1);
+		cout << "Ronda:                                    " << i;
 		for (int j = 1; j <= cantJugadores; j++) {
+			if (j == 1) {
+				gotoxy(0,3*j);
+			}
+			else {
+				gotoxy(0, (3 * j - (j - 1)));
+			}
+			cout << "|                                              |\n";
 			cout << "+----------------------------------------------+\n";
-			cout << "|Jugador " << j << " lanza los dados...";
-			gotoxy(47, 3);
-			cout<<"|\n";
+		}
+		for (int j = 1; j <= cantJugadores; j++) {
+			if (j == 1) {
+				gotoxy(1, 3 * j);
+			}
+			else {
+				gotoxy(1, (3 * j - (j -1)));
+			}
+			cout << "Jugador " << j << " lanza los dados...";
 			int puntajeRonda = 0;
 			puntajeRonda = lanzarDados();
+			Sleep(1000);
 			modificarPuntaje(primero, j, puntajeRonda, i);
 		}
 	}
