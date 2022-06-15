@@ -39,7 +39,8 @@ void mostrarRonda(Nodo* , int, int);
 void mostrarJugador(Nodo*, int);
 void cargarTop(NodoTop*&, NodoTop*&, Nodo*);
 void ordenarTop(NodoTop*&);
-void mostrarTop(NodoTop*, Nodo*);
+void mostrarTop(NodoTop*, Nodo*, int);
+void vaciarTop(NodoTop*&, NodoTop*&);
 void juego(Nodo*&, Nodo*&, int&, int&);
 void buscarGanador(Nodo*);
 int mostrarMenu(void);
@@ -76,7 +77,8 @@ int main(){
 			case 4:
 				cargarTop(topPrimero, topUltimo, primero);
 				ordenarTop(topPrimero);
-				mostrarTop(topPrimero, primero);
+				mostrarTop(topPrimero, primero, cantJugadores);
+				vaciarTop(topPrimero, topUltimo);
 				break;
 			case 5:
 				salirOSeguir(salir, jugar);
@@ -285,6 +287,7 @@ void mostrarJugador(Nodo* primero, int cantRondas) {
 	if (!encontrado) {
 		cout << "No se ha encontrado a ningún jugador con ese nombre.\n";
 	}
+	system("pause");
 }
 
 void cargarTop(NodoTop *&topPrimero, NodoTop *&topUltimo, Nodo* primero) {
@@ -314,19 +317,22 @@ void cargarTop(NodoTop *&topPrimero, NodoTop *&topUltimo, Nodo* primero) {
 }
 
 void ordenarTop(NodoTop *&topPrimero) {
-	NodoTop* actual = new NodoTop(), * aux = new NodoTop();
+	NodoTop* actual = new NodoTop(), *aux=NULL;
+	int idAux, puntajeAux;
 	actual = topPrimero;
 	if (actual) {
 		while (actual) {
 			if (actual->siguiente) {
 				if (actual->puntajeTotal < actual->siguiente->puntajeTotal) {
-					aux = actual;
-					
+					idAux = actual->idJugador;
+					puntajeAux = actual->puntajeTotal;
+					aux = actual->siguiente;
+
 					actual->idJugador = actual->siguiente->idJugador;
 					actual->puntajeTotal = actual->siguiente->puntajeTotal;
 
-					actual->siguiente->idJugador = aux->idJugador;
-					actual->siguiente->puntajeTotal = aux->puntajeTotal;
+					actual->siguiente->idJugador = idAux;
+					actual->siguiente->puntajeTotal = puntajeAux;
 				}
 				actual = actual->siguiente;
 			}
@@ -337,17 +343,57 @@ void ordenarTop(NodoTop *&topPrimero) {
 	}
 }
 
-void mostrarTop(NodoTop* topPrimero, Nodo *primero) {
+void mostrarTop(NodoTop* topPrimero, Nodo *primero, int cantJugadores) {
 	NodoTop* actual = new NodoTop();
 	actual = topPrimero;
 
+	system("cls");
+
+	int x = 1, y = 1;
+
+	cout << "+----------------+----------------+----------------+\n";
+	cout << "|                                                  |\n";
+	cout << "+----------------+----------------+----------------+\n";
+
+	x = 14;
+	y = 1;
+	gotoxy(x, y);
+	cout << "Top de Puntajes Finales";
+	x = 0;
+	y = y + 2;
+	gotoxy(x, y);
+	cout << "+----------------+----------------+----------------+\n";
+
+	for (int i = 1; i <= cantJugadores; i++) {
+		cout << "|                                                  |\n";
+	}
+	cout << "+----------------+----------------+----------------+\n";
+	x = 1;
+	y++;
 	if (actual) {
 		while (actual) {
-				cout << "Jugador: " << buscarNombre(primero, actual->idJugador) << "\n";
-				cout << "Puntaje: " << actual->puntajeTotal << "\n";
+			gotoxy(x, y);
+			cout << "Jugador: " << buscarNombre(primero, actual->idJugador) << "   Puntaje: " << actual->puntajeTotal;
 			actual = actual->siguiente;
+			y = y + 1;
 		}
 	}
+	cout << "\n\n";
+	system("pause");
+}
+
+void vaciarTop(NodoTop*& primero, NodoTop *&ultimo) {
+	NodoTop* actual = new NodoTop(), *aux = new NodoTop();
+	actual = primero;
+	if (actual) {
+		while (actual) {
+			aux = actual;
+			actual = actual->siguiente;
+			delete aux;
+		}
+	}
+	primero = NULL;
+	ultimo = NULL;
 }
 
 void modificarPuntaje(Nodo* primero, int id, int puntajeRonda, int rondaActual) {

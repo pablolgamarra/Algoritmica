@@ -62,7 +62,8 @@ int main(){
 			buscarGanador(primero);
 			jugar = false;
 		}
-
+		system("cls");
+		buscarGanador(primero);
 		switch (mostrarMenu()) {
 			case 1:
 				mostrarLista(primero, cantRondas);
@@ -158,21 +159,29 @@ void cargarLista(Nodo*& primero, Nodo*& ultimo,int id ,string nombre, int puntaj
 
 void mostrarLista(Nodo* primero, int cantRondas) {
 	system("cls");
+	int x = 0, y = 1;
 	
 	Nodo* actual = new Nodo();
 	actual = primero;
 	if(actual){
 		while (actual) {
 			cout << "+----------------------------------------------+\n";
-			cout << "|   Jugador: " << actual->nombre;
-			cout<< "|\n";
+			cout << "|                                              |\n";
 			cout << "+----------------------------------------------+\n";
-			for (int i = 0; i < cantRondas; i++) {
-				cout << "|Ronda " << i + 1 << " Puntaje: " << actual->puntajes[i];
-				cout << "|\n";
+			x = 1;
+			gotoxy(x, y);
+			cout << "Jugador: " << actual->nombre;
+			x = 0;
+			y = y + 2;
+			gotoxy(x, y);
+			for (int i = 1; i <= cantRondas; i++) {
+				cout << "|                                              |\n";
 				cout << "+----------------------------------------------+\n";
+				x = 1;
+				gotoxy(x, y);
+				cout << "Ronda " << i << " Puntaje: " << actual->puntajes[i-1];
+				y = y + 2;
 			}
-			cout << "El Puntaje Total de "<<actual->nombre<<" es: " << actual->puntajeTotal<<"\n";
 			actual = actual->siguiente;
 		}
 	}
