@@ -1,2 +1,4 @@
 ﻿  ej2.cpp
-  Ejercicio 2.vcxproj -> P:\Documents\Facultad\S3\Algoritmica Git\Algoritmica\Clase XIV\Debug\Ejercicio 2.exe
+P:\Archivos Facultad\Algoritmica\Clase XIV\Ejercicio 2\ej2.cpp(505): warning C4715: 'tieneNumero': no todas las rutas de acceso de control devuelven un valor
+P:\Archivos Facultad\Algoritmica\Clase XIV\Ejercicio 2\ej2.cpp(514): warning C4715: 'errorDeCarga': no todas las rutas de acceso de control devuelven un valor
+  Ejercicio 2.vcxproj -> P:\Archivos Facultad\Algoritmica\Clase XIV\Clase XIV\Debug\Ejercicio 2.exe
